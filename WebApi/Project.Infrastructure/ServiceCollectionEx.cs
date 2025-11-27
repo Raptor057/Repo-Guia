@@ -20,7 +20,7 @@ namespace Project.Infrastructure
             services.AddScoped(typeof(IGenericDB<>), typeof(GenericDB<>));
 
             // DB tipada para Project
-            services.AddScoped<IProject, ProjectDB>();
+            services.AddScoped<IProjectDb, ProjectDB>();
 
             return services;
         }

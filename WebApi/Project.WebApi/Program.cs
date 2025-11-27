@@ -1,3 +1,5 @@
+using Project.Application;
+using Project.Infrastructure;
 using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,9 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 // Health Checks
 builder.Services.AddHealthChecks();
+
+// Custom services
+builder.Services.AddAppServices();
+builder.Services.AddInfraServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -19,7 +24,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Middleware de Prometheus para m�tricas HTTP (latencia, status codes, etc.)
 app.UseHttpMetrics();

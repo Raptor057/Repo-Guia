@@ -1,5 +1,5 @@
 ﻿namespace Project.Infrastructure.DataSources.SqlDB
 {
-    public interface IProject : IGenericDB<Project>
+    public interface IProjectDb : IGenericDB<ProjectDatabase>
     {}
 }

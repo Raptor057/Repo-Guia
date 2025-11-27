@@ -1,9 +1,9 @@
 ﻿namespace Project.Infrastructure.DataSources.SqlDB
 {
 
-    public abstract class Project
+    public abstract class ProjectDatabase
     {
-        protected Project()
+        protected ProjectDatabase()
         {}
     }
 

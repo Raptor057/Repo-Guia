@@ -1,7 +1,7 @@
 ﻿namespace Project.Infrastructure.DataSources.SqlDB.Implementations
 {
-    internal sealed class ProjectDB : GenericDB<Project>, IProject
+    internal sealed class ProjectDB : GenericDB<ProjectDatabase>, IProjectDb
     {
-        public ProjectDB(GenericConfigurationSqlDbConnectionFactory<Project> connections) : base(connections) { }
+        public ProjectDB(GenericConfigurationSqlDbConnectionFactory<ProjectDatabase> connections) : base(connections) { }
     }
 }
