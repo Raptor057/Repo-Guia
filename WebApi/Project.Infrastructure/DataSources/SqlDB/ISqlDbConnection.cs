@@ -2,7 +2,10 @@
 {
 
     public abstract class Project
-    { }
+    {
+        protected Project()
+        {}
+    }
 
     /// <summary>
     /// Interface defining the minimum basic operations needed to work against

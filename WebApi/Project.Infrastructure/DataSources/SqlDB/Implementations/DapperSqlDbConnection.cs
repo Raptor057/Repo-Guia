@@ -1,5 +1,6 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
+using System.Data;
+
 
 namespace Project.Infrastructure.DataSources.SqlDB.Implementations
 {
