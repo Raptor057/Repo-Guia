@@ -1,0 +1,3 @@
+[submodule "WebApi/ApiCommon"]
+	path = WebApi/ApiCommon
+	url = https://github.com/Raptor057/ApiCommon.git
