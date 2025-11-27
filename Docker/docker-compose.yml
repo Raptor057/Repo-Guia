@@ -94,7 +94,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Project: "Server=sqlserver,1433;Database=Project;User ID=AppUser;Password=TuC0ntraseña_Fuert3!;TrustServerCertificate=True;MultipleActiveResultSets=TRUE;"
+      ConnectionStrings__ProjectDatabase: "Server=sqlserver,1433;Database=Project;User ID=AppUser;Password=TuC0ntraseña_Fuert3!;TrustServerCertificate=True;MultipleActiveResultSets=TRUE;"
 
     depends_on:
     - sqlserver
