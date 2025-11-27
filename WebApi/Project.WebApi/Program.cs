@@ -29,7 +29,7 @@ app.UseAuthorization();
 // ---- ENDPOINTS EXTRA ----
 
 // 1) /env -> ver entorno
-app.MapGet("/env", (IHostEnvironment env) =>
+app.MapGet("/api/env", (IHostEnvironment env) =>
 {
     return Results.Ok(new
     {
@@ -39,7 +39,7 @@ app.MapGet("/env", (IHostEnvironment env) =>
 });
 
 // 2) /version -> lee el archivo VERSION del output
-app.MapGet("/version", () =>
+app.MapGet("/api/version", () =>
 {
     var versionFilePath = Path.Combine(AppContext.BaseDirectory, "VERSION");
 
@@ -57,10 +57,10 @@ app.MapGet("/version", () =>
 });
 
 // 3) /health -> healthcheck b�sico
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/api/health");
 
 // 4) /metrics -> endpoint de Prometheus
-app.MapMetrics("/metrics");
+app.MapMetrics("/api/metrics");
 
 // Controllers existentes
 app.MapControllers();
