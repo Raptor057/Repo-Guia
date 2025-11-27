@@ -1,5 +1,3 @@
-using Project.Application;
-using Project.Infrastructure;
 using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +8,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Health Checks
 builder.Services.AddHealthChecks();
-
-// Custom services
-builder.Services.AddAppServices();
-builder.Services.AddInfraServices(builder.Configuration);
 
 var app = builder.Build();
 

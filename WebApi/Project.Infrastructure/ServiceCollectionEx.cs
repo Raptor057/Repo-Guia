@@ -1,8 +1,10 @@
 ﻿using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Project.Domain.IRepositories;
 using Project.Infrastructure.DataSources.SqlDB;
 using Project.Infrastructure.DataSources.SqlDB.Implementations;
+using Project.Infrastructure.Repositories;
 
 namespace Project.Infrastructure
 {
@@ -21,6 +23,9 @@ namespace Project.Infrastructure
 
             // DB tipada para Project
             services.AddScoped<IProjectDb, ProjectDB>();
+
+            //Repo de usuarios
+            services.AddScoped<IUsersRepository, UsersRepository>();
 
             return services;
         }
