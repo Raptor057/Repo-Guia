@@ -5,8 +5,8 @@ USE [master];
 GO
 
 CREATE LOGIN [AppUser] WITH PASSWORD = 'TuC0ntraseña_Fuert3!',
-    CHECK_POLICY = ON,         -- aplica política de seguridad de Windows (longitud, complejidad, etc.)
-    CHECK_EXPIRATION = OFF;    -- si quieres que no caduque la contraseña
+    CHECK_POLICY = ON,
+    CHECK_EXPIRATION = OFF;
 GO
 
 -------------------------------------
@@ -28,11 +28,11 @@ CREATE USER [AppUser] FOR LOGIN [AppUser];
 GO
 
 -- Opción A: darle control total sobre la BD (db_owner)
-ALTER ROLE [db_owner] ADD MEMBER [AppUser];
-GO
--- Opción B (alternativa): dar solo lectura/escritura
--- ALTER ROLE [db_datareader] ADD MEMBER [AppUser];
--- ALTER ROLE [db_datawriter] ADD MEMBER [AppUser];
+-- ALTER ROLE [db_owner] ADD MEMBER [AppUser];
+-- GO
+-- Opción B (alternativa): comentar si quisieras algo más limitado
+ALTER ROLE [db_datareader] ADD MEMBER [AppUser];
+ALTER ROLE [db_datawriter] ADD MEMBER [AppUser];
 
 -------------------------------------
 -- 4. Crear tablas y datos de catálogo

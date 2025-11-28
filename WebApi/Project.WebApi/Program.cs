@@ -1,13 +1,32 @@
+using MediatR;
 using Prometheus;
+using Common.CleanArch;
+using Project.Application;
+using Project.Infrastructure;
+using Project.WebApi.Controllers.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Servicios básicos WebApi
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// Health Checks
 builder.Services.AddHealthChecks();
+builder.Services.AddWebApiServices(builder.Configuration);
+
+// CLEAN ARCH
+builder.Services.AddInfraServices(builder.Configuration); // Dapper, repos, logging
+builder.Services.AddAppServices();                        // MediatR + InteractorPipeline
+
+// ViewModels para presenters (por request)
+builder.Services.AddScoped(typeof(ResultViewModel<>));
+builder.Services.AddScoped(typeof(GenericViewModel<>));
+
+// MediatR adicional para presenters que viven en el assembly WebApi
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(UsersController).Assembly);
+});
 
 var app = builder.Build();
 

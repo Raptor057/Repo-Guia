@@ -17,7 +17,6 @@ namespace Project.Infrastructure.Repositories
             string password,
             CancellationToken cancellationToken)
         {
-            // password aquí es la cadena HEX (SHA256) que genera UserLoginRequest
             const string sql = @"
                 SELECT COUNT(1)
                 FROM Users
@@ -26,7 +25,6 @@ namespace Project.Infrastructure.Repositories
                   AND UserActive = 1;
             ";
 
-            // Nuestro wrapper Dapper no recibe CancellationToken, así que por ahora no lo usamos aquí
             var count = await _db.ExecuteScalarAsync<int>(sql, new
             {
                 UserName = username,
@@ -34,6 +32,48 @@ namespace Project.Infrastructure.Repositories
             }).ConfigureAwait(false);
 
             return count > 0;
+        }
+
+        public async Task<bool> UserNameExistsAsync(
+            string username,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT COUNT(1)
+                FROM Users
+                WHERE UserName = @UserName;
+            ";
+
+            var count = await _db.ExecuteScalarAsync<int>(sql, new
+            {
+                UserName = username
+            }).ConfigureAwait(false);
+
+            return count > 0;
+        }
+
+        public async Task<long> CreateUserAsync(
+            string fullName,
+            string username,
+            byte[] passwordHash,
+            long roleId,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                INSERT INTO Users (UserFullName, UserName, PasswordHash, UserRolID)
+                OUTPUT INSERTED.UserID
+                VALUES (@FullName, @UserName, @PasswordHash, @RoleId);
+            ";
+
+            var id = await _db.ExecuteScalarAsync<long>(sql, new
+            {
+                FullName = fullName,
+                UserName = username,
+                PasswordHash = passwordHash,
+                RoleId = roleId
+            }).ConfigureAwait(false);
+
+            return id;
         }
     }
 }

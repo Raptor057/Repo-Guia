@@ -1,22 +1,30 @@
 ﻿using Common.CleanArch;
 using Project.Application;
 using Project.Infrastructure;
+using Project.WebApi.Controllers.Users;
 
-
-namespace Project.WebApi
+public static class ServiceCollectionEx
 {
-    public static class ServiceCollectionEx
+    public static IServiceCollection AddWebApiServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+        services.AddHealthChecks();
+
+        services.AddInfraServices(configuration);
+        services.AddAppServices(); //IMPORTANTE
+
+        services.AddScoped(typeof(ResultViewModel<>));
+        services.AddScoped(typeof(GenericViewModel<>));
+
+        services.AddMediatR(cfg =>
         {
-            var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            return services
-                .AddSingleton(config)
-                .AddInfraServices(config)
-                .AddSingleton(typeof(ResultViewModel<>))
-                .AddSingleton(typeof(GenericViewModel<>))
-                .AddAppServices()
-                .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionEx).Assembly); });
-        }
+            cfg.RegisterServicesFromAssembly(typeof(UsersController).Assembly);
+        });
+
+        return services;
     }
 }

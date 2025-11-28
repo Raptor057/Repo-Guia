@@ -10,7 +10,10 @@ namespace Project.Application
         {
             return services
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(InteractorPipeline<,>))
-                .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionEx).Assembly); });
+                .AddMediatR(cfg =>
+                {
+                    cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionEx).Assembly);
+                });
         }
     }
 }

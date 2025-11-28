@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Project.Application.Dtos.Users;
+using Project.Application.UseCases.Users.UserCreate;
 using Project.Application.UseCases.Users.UserLogin;
 using Project.WebApi.Controllers.Users.RequestBodys;
 
@@ -23,7 +24,7 @@ namespace Project.WebApi.Controllers.Users
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> ExecuteLogin([FromBody] LoginRequestBody requestBody)
+        public async Task<IActionResult> LoginUser([FromBody] LoginRequestBody requestBody)
         {
             var Login = new UserLoginDto(requestBody.Username, requestBody.Password);
 
@@ -32,6 +33,33 @@ namespace Project.WebApi.Controllers.Users
             {
                 _ = await _mediator.Send(request).ConfigureAwait(false);
                 return _viewModel.IsSuccess ? Ok(_viewModel) : StatusCode(500, _viewModel);
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex;
+                while (innerEx.InnerException != null) innerEx = innerEx.InnerException!;
+                return StatusCode(500, _viewModel.Fail(innerEx.Message));
+            }
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateRequestBody requestBody, CancellationToken cancellationToken)
+        {
+            var dto = new UserCreateDto(
+                requestBody.FullName,
+                requestBody.Username,
+                requestBody.Password,
+                requestBody.RoleId);
+
+            try
+            {
+                var request = UserCreateRequest.Create(dto);
+
+                _ = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+
+                return _viewModel.IsSuccess
+                    ? Ok(_viewModel)
+                    : StatusCode(500, _viewModel);
             }
             catch (Exception ex)
             {
