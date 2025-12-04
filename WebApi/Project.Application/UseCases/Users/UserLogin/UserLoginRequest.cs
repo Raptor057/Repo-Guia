@@ -1,9 +1,7 @@
-﻿using Common;
+using Common;
 using Common.CleanArch;
 using Project.Application.Dtos.Users;
 using Project.Application.UseCases.Users.UserLogin.Responses;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Project.Application.UseCases.Users.UserLogin
 {
@@ -38,16 +36,10 @@ namespace Project.Application.UseCases.Users.UserLogin
             }
         }
 
-        private static string HashPassword(string password)
-        {
-            var hashedBytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-            return Convert.ToHexString(hashedBytes);
-        }
-
         private UserLoginRequest(UserLoginDto loginUserDto)
         {
             User = loginUserDto.Usr ?? string.Empty;
-            Password = HashPassword(loginUserDto.Psswd ?? string.Empty);
+            Password = UserPasswordHasher.Hash(loginUserDto.Psswd ?? string.Empty);
         }
 
         public string User { get; }

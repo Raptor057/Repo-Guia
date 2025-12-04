@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 
 namespace Project.Application.UseCases.Users.UserLogin.Responses
 {

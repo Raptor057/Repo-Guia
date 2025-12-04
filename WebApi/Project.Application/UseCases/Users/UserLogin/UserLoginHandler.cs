@@ -5,7 +5,7 @@ using Project.Domain.IRepositories;
 
 namespace Project.Application.UseCases.Users.UserLogin
 {
-    internal sealed class UserLoginHandler : IInteractor<UserLoginRequest, UserLoginResponse>
+    public sealed class UserLoginHandler : IInteractor<UserLoginRequest, UserLoginResponse>
     {
         private readonly IUsersRepository _usersRepository;
         private readonly ILogger<UserLoginHandler> _logger;

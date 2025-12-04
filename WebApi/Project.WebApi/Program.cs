@@ -1,3 +1,4 @@
+using Project.WebApi;
 using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Health Checks
 builder.Services.AddHealthChecks();
+builder.Services.AddServices();
 
 var app = builder.Build();
 
@@ -23,7 +25,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-// Middleware de Prometheus para m�tricas HTTP (latencia, status codes, etc.)
+// Middleware de Prometheus para métricas HTTP (latencia, status codes, etc.)
 app.UseHttpMetrics();
 
 app.UseAuthorization();
@@ -58,7 +60,7 @@ app.MapGet("/api/version", () =>
     return Results.Ok(new { version });
 });
 
-// 3) /health -> healthcheck b�sico
+// 3) /health -> healthcheck básico
 app.MapHealthChecks("/api/health");
 
 // 4) /metrics -> endpoint de Prometheus

@@ -1,4 +1,4 @@
-﻿using Common.CleanArch;
+using Common.CleanArch;
 
 namespace Project.Application.UseCases.Users.UserLogin.Responses
 {
