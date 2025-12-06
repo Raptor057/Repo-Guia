@@ -29,14 +29,14 @@ services:
     build:
       context: ..
       dockerfile: WebApi/Docker/Dockerfile
-    # environment:
-    #   - ASPNETCORE_URLS=http://+:8080
-    #   - ASPNETCORE_ENVIRONMENT=Development
-    #   - Jwt__Issuer=${JWT_ISSUER:-Raptor.Api}
-    #   - Jwt__Audience=${JWT_AUDIENCE:-Raptor.Api}
-    #   - Jwt__Key=${JWT_KEY:-f2effe638c85e49af04a610a5210cde719057e58528bdcc3037839809c0b64172f8fe158718caf46508278772802dcff00bf5ea603b217a253cc5aa292ed4bbc}
-    #   - ConnectionStrings__ProjectDatabase=${DB_CONN:-Server=sqlserver,1433;Database=Project;User ID=sa;Password=${SA_PASSWORD:-Cbmwjmkq27$*};TrustServerCertificate=True;MultipleActiveResultSets=TRUE;}
-    #   - CustomLogging__SeqUri=http://seq:5341
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+      #- Jwt__Issuer=${JWT_ISSUER:-Raptor.Api}
+      #- Jwt__Audience=${JWT_AUDIENCE:-Raptor.Api}
+      #- Jwt__Key=${JWT_KEY:-f2effe638c85e49af04a610a5210cde719057e58528bdcc3037839809c0b64172f8fe158718caf46508278772802dcff00bf5ea603b217a253cc5aa292ed4bbc}
+      #- ConnectionStrings__ProjectDatabase=${DB_CONN:-Server=sqlserver,1433;Database=Project;User ID=sa;Password=${SA_PASSWORD:-Cbmwjmkq27$*};TrustServerCertificate=True;MultipleActiveResultSets=TRUE;}
+      #- CustomLogging__SeqUri=http://seq:5341
     expose:
       - "8080:8080"
     depends_on:
