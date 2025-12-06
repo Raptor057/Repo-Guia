@@ -1,5 +1,6 @@
-﻿using Project.Domain.IRepositories;
+using Project.Domain.IRepositories;
 using Project.Infrastructure.DataSources.SqlDB;
+using UserEntity = Project.Domain.Entities.User;
 
 namespace Project.Infrastructure.Repositories
 {
@@ -17,6 +18,7 @@ namespace Project.Infrastructure.Repositories
             string password,
             CancellationToken cancellationToken)
         {
+            _ = cancellationToken;
             const string sql = @"
                 SELECT COUNT(1)
                 FROM Users
@@ -36,17 +38,80 @@ namespace Project.Infrastructure.Repositories
 
         public async Task<bool> UserNameExistsAsync(
             string username,
+            long? excludeUserId,
             CancellationToken cancellationToken)
         {
+            _ = cancellationToken;
             const string sql = @"
                 SELECT COUNT(1)
                 FROM Users
-                WHERE UserName = @UserName;
+                WHERE UserName = @UserName
+                  AND (@ExcludeUserId IS NULL OR UserID <> @ExcludeUserId);
             ";
 
             var count = await _db.ExecuteScalarAsync<int>(sql, new
             {
-                UserName = username
+                UserName = username,
+                ExcludeUserId = excludeUserId
+            }).ConfigureAwait(false);
+
+            return count > 0;
+        }
+
+        public async Task<UserEntity?> GetByIdAsync(long userId, CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                SELECT
+                    UserID      AS UserId,
+                    UserFullName,
+                    UserName,
+                    UserRolID   AS RoleId,
+                    UserActive,
+                    UtcTimeStamp
+                FROM Users
+                WHERE UserID = @UserId;
+            ";
+
+            var user = await _db.QueryFirstAsync<UserEntity?>(sql, new
+            {
+                UserId = userId
+            }).ConfigureAwait(false);
+
+            return user;
+        }
+
+        public async Task<IReadOnlyCollection<UserEntity>> GetListAsync(CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                SELECT
+                    UserID      AS UserId,
+                    UserFullName,
+                    UserName,
+                    UserRolID   AS RoleId,
+                    UserActive,
+                    UtcTimeStamp
+                FROM Users
+                ORDER BY UserFullName;
+            ";
+
+            var users = await _db.QueryAsync<UserEntity>(sql).ConfigureAwait(false);
+            return users.ToList();
+        }
+
+        public async Task<bool> UserExistsAsync(long userId, CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                SELECT COUNT(1)
+                FROM Users
+                WHERE UserID = @UserId;
+            ";
+
+            var count = await _db.ExecuteScalarAsync<int>(sql, new
+            {
+                UserId = userId
             }).ConfigureAwait(false);
 
             return count > 0;
@@ -59,6 +124,7 @@ namespace Project.Infrastructure.Repositories
             long roleId,
             CancellationToken cancellationToken)
         {
+            _ = cancellationToken;
             const string sql = @"
                 INSERT INTO Users (UserFullName, UserName, PasswordHash, UserRolID)
                 OUTPUT INSERTED.UserID
@@ -74,6 +140,54 @@ namespace Project.Infrastructure.Repositories
             }).ConfigureAwait(false);
 
             return id;
+        }
+
+        public async Task<bool> UpdateUserAsync(
+            long userId,
+            string fullName,
+            string username,
+            byte[]? passwordHash,
+            long roleId,
+            CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                UPDATE Users
+                SET UserFullName = @FullName,
+                    UserName = @UserName,
+                    UserRolID = @RoleId,
+                    PasswordHash = CASE WHEN @PasswordHash IS NULL THEN PasswordHash ELSE @PasswordHash END
+                WHERE UserID = @UserId;
+            ";
+
+            var affectedRows = await _db.ExecuteAsync(sql, new
+            {
+                UserId = userId,
+                FullName = fullName,
+                UserName = username,
+                RoleId = roleId,
+                PasswordHash = passwordHash
+            }).ConfigureAwait(false);
+
+            return affectedRows > 0;
+        }
+
+        public async Task<bool> UpdateUserActiveAsync(long userId, bool isActive, CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                UPDATE Users
+                SET UserActive = @IsActive
+                WHERE UserID = @UserId;
+            ";
+
+            var affectedRows = await _db.ExecuteAsync(sql, new
+            {
+                UserId = userId,
+                IsActive = isActive
+            }).ConfigureAwait(false);
+
+            return affectedRows > 0;
         }
     }
 }

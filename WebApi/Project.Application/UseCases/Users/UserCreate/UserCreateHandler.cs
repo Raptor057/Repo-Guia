@@ -21,7 +21,7 @@ namespace Project.Application.UseCases.Users.UserCreate
             _logger.LogInformation("Creando usuario {UserName}", request.UserName);
 
             var exists = await _usersRepository
-                .UserNameExistsAsync(request.UserName, cancellationToken)
+                .UserNameExistsAsync(request.UserName, null, cancellationToken)
                 .ConfigureAwait(false);
 
             if (exists)
