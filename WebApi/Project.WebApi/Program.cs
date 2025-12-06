@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Project.Application;
 using Project.Infrastructure;
 using Project.WebApi.Controllers.Users;
+using Project.WebApi.Security;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddWebApiServices(builder.Configuration);
-builder.Services.AddAuthorization();
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? string.Empty;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -26,12 +33,17 @@ builder.Services.AddAuthentication(options =>
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = false
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = signingKey
     };
 });
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<JwtTokenService>();
 
 // CLEAN ARCH
 builder.Services.AddInfraServices(builder.Configuration); // Dapper, repos, logging

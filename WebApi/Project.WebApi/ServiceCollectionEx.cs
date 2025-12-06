@@ -11,7 +11,33 @@ public static class ServiceCollectionEx
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new() { Title = "Project.WebApi", Version = "v1" });
+            options.AddSecurityDefinition("Bearer", new()
+            {
+                Name = "Authorization",
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Description = "Token JWT en el header Authorization. Ejemplo: 'Bearer {token}'"
+            });
+            options.AddSecurityRequirement(new()
+            {
+                {
+                    new()
+                    {
+                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
         services.AddHealthChecks();
 
         services.AddInfraServices(configuration);
