@@ -3,7 +3,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Project.Application.Dtos.Users;
 using Project.Application.UseCases.Users.UserCreate;
+using Project.Application.UseCases.Users.UserDisable;
 using Project.Application.UseCases.Users.UserLogin;
+using Project.Application.UseCases.Users.UserUpdate;
+using Project.Application.UseCases.Users.UserGet;
+using Project.Application.UseCases.Users.UserList;
 using Project.WebApi.Controllers.Users.RequestBodys;
 
 namespace Project.WebApi.Controllers.Users
@@ -31,8 +35,14 @@ namespace Project.WebApi.Controllers.Users
             var request = UserLoginRequest.Login(Login);
             try
             {
-                _ = await _mediator.Send(request).ConfigureAwait(false);
-                return _viewModel.IsSuccess ? Ok(_viewModel) : StatusCode(500, _viewModel);
+                var response = await _mediator.Send(request).ConfigureAwait(false);
+
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserLogin.Responses.SuccessUserLoginResponse success => Ok(_viewModel.Ok(success)),
+                    Project.Application.UseCases.Users.UserLogin.Responses.FailureUserLoginResponse failure => StatusCode(500, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
             }
             catch (Exception ex)
             {
@@ -55,11 +65,118 @@ namespace Project.WebApi.Controllers.Users
             {
                 var request = UserCreateRequest.Create(dto);
 
-                _ = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+                var response = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
 
-                return _viewModel.IsSuccess
-                    ? Ok(_viewModel)
-                    : StatusCode(500, _viewModel);
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserCreate.Responses.SuccessUserCreateResponse success => Ok(_viewModel.Ok(success)),
+                    Project.Application.UseCases.Users.UserCreate.Responses.FailureUserCreateResponse failure => StatusCode(500, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex;
+                while (innerEx.InnerException != null) innerEx = innerEx.InnerException!;
+                return StatusCode(500, _viewModel.Fail(innerEx.Message));
+            }
+        }
+
+        [HttpPut("update/{userId:long}")]
+        public async Task<IActionResult> UpdateUser(long userId, [FromBody] UserUpdateRequestBody requestBody, CancellationToken cancellationToken)
+        {
+            var dto = new UserUpdateDto(
+                userId,
+                requestBody.FullName,
+                requestBody.Username,
+                requestBody.Password,
+                requestBody.RoleId);
+
+            try
+            {
+                var request = UserUpdateRequest.Update(dto);
+
+                var response = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserUpdate.Responses.SuccessUserUpdateResponse success => Ok(_viewModel.Ok(success)),
+                    Project.Application.UseCases.Users.UserUpdate.Responses.FailureUserUpdateResponse failure => StatusCode(500, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex;
+                while (innerEx.InnerException != null) innerEx = innerEx.InnerException!;
+                return StatusCode(500, _viewModel.Fail(innerEx.Message));
+            }
+        }
+
+        [HttpPost("disable")]
+        public async Task<IActionResult> DisableUser([FromBody] UserDisableRequestBody requestBody, CancellationToken cancellationToken)
+        {
+            var dto = new UserDisableDto(requestBody.UserId, requestBody.IsActive);
+            try
+            {
+                var request = UserDisableRequest.Disable(dto);
+
+                var response = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserDisable.Responses.SuccessUserDisableResponse success => Ok(_viewModel.Ok(success)),
+                    Project.Application.UseCases.Users.UserDisable.Responses.FailureUserDisableResponse failure => StatusCode(500, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex;
+                while (innerEx.InnerException != null) innerEx = innerEx.InnerException!;
+                return StatusCode(500, _viewModel.Fail(innerEx.Message));
+            }
+        }
+
+        [HttpGet("{userId:long}")]
+        public async Task<IActionResult> GetUser(long userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var request = UserGetRequest.Create(userId);
+
+                var response = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserGet.Responses.SuccessUserGetResponse success => Ok(_viewModel.Ok(success.Data)),
+                    Project.Application.UseCases.Users.UserGet.Responses.FailureUserGetResponse failure => StatusCode(404, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex;
+                while (innerEx.InnerException != null) innerEx = innerEx.InnerException!;
+                return StatusCode(500, _viewModel.Fail(innerEx.Message));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var request = UserListRequest.Create();
+
+                var response = await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+
+                return response switch
+                {
+                    Project.Application.UseCases.Users.UserList.Responses.SuccessUserListResponse success => Ok(_viewModel.Ok(success.Data)),
+                    Project.Application.UseCases.Users.UserList.Responses.FailureUserListResponse failure => StatusCode(500, _viewModel.Fail(failure.Message)),
+                    _ => StatusCode(500, _viewModel.Fail("Ocurrió un error inesperado."))
+                };
             }
             catch (Exception ex)
             {
