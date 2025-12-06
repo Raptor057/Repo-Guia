@@ -1,4 +1,4 @@
-﻿using Common.CleanArch;
+using Common.CleanArch;
 using Microsoft.Extensions.Logging;
 using Project.Application.UseCases.Users.UserLogin.Responses;
 using Project.Domain.IRepositories;
@@ -20,19 +20,24 @@ namespace Project.Application.UseCases.Users.UserLogin
         {
             _logger.LogInformation("Intento de login para usuario {User}", request.User);
 
-            var isValid = await _usersRepository
-                .IsValidUserCredentialsAsync(request.User, request.Password, cancellationToken)
+            var user = await _usersRepository
+                .GetUserForLoginAsync(request.User, request.Password, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (!isValid)
+            if (user is null)
             {
                 _logger.LogWarning("Login fallido para usuario {User}", request.User);
                 return new FailureUserLoginResponse("Usuario o contraseña incorrectos.");
             }
 
             _logger.LogInformation("Login exitoso para usuario {User}", request.User);
-            // Aquí podrías devolver más info (claims, token, etc.) si lo necesitas
-            return new SuccessUserLoginResponse("Login exitoso.");
+            return new SuccessUserLoginResponse(
+                user.UserId,
+                user.UserName,
+                user.UserFullName,
+                user.RoleId,
+                user.RoleName,
+                "Login exitoso.");
         }
     }
 }

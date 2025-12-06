@@ -3,6 +3,7 @@
     public interface IUsersRepository
     {
         Task<bool> IsValidUserCredentialsAsync(string username, string password, CancellationToken cancellationToken);
+        Task<Entities.AuthUser?> GetUserForLoginAsync(string username, string password, CancellationToken cancellationToken);
         Task<bool> UserNameExistsAsync(string username, long? excludeUserId, CancellationToken cancellationToken);
         Task<bool> UserExistsAsync(long userId, CancellationToken cancellationToken);
         Task<Entities.User?> GetByIdAsync(long userId, CancellationToken cancellationToken);

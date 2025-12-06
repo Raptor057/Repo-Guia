@@ -36,6 +36,36 @@ namespace Project.Infrastructure.Repositories
             return count > 0;
         }
 
+        public async Task<Project.Domain.Entities.AuthUser?> GetUserForLoginAsync(
+            string username,
+            string password,
+            CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            const string sql = @"
+                SELECT
+                    u.UserID        AS UserId,
+                    u.UserName      AS UserName,
+                    u.UserFullName  AS UserFullName,
+                    u.UserRolID     AS RoleId,
+                    r.Rol           AS RoleName,
+                    u.UserActive    AS UserActive
+                FROM Users u
+                INNER JOIN SystemRoles r ON r.RolID = u.UserRolID
+                WHERE u.UserName = @UserName
+                  AND CONVERT(VARCHAR(64), u.PasswordHash, 2) = @Password
+                  AND u.UserActive = 1;
+            ";
+
+            var user = await _db.QueryFirstAsync<Project.Domain.Entities.AuthUser?>(sql, new
+            {
+                UserName = username,
+                Password = password
+            }).ConfigureAwait(false);
+
+            return user;
+        }
+
         public async Task<bool> UserNameExistsAsync(
             string username,
             long? excludeUserId,
