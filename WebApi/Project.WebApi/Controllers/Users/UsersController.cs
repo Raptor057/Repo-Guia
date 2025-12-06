@@ -1,5 +1,6 @@
 ﻿using Common.CleanArch;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Application.Dtos.Users;
 using Project.Application.UseCases.Users.UserCreate;
@@ -27,6 +28,7 @@ namespace Project.WebApi.Controllers.Users
             _viewModel = viewModel;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser([FromBody] LoginRequestBody requestBody)
         {
@@ -52,6 +54,7 @@ namespace Project.WebApi.Controllers.Users
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateRequestBody requestBody, CancellationToken cancellationToken)
         {
@@ -82,6 +85,7 @@ namespace Project.WebApi.Controllers.Users
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("update/{userId:long}")]
         public async Task<IActionResult> UpdateUser(long userId, [FromBody] UserUpdateRequestBody requestBody, CancellationToken cancellationToken)
         {
@@ -113,6 +117,7 @@ namespace Project.WebApi.Controllers.Users
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("disable")]
         public async Task<IActionResult> DisableUser([FromBody] UserDisableRequestBody requestBody, CancellationToken cancellationToken)
         {
@@ -138,6 +143,7 @@ namespace Project.WebApi.Controllers.Users
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{userId:long}")]
         public async Task<IActionResult> GetUser(long userId, CancellationToken cancellationToken)
         {
@@ -162,6 +168,7 @@ namespace Project.WebApi.Controllers.Users
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
         {

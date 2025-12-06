@@ -1,6 +1,8 @@
 using MediatR;
 using Prometheus;
 using Common.CleanArch;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Project.Application;
 using Project.Infrastructure;
 using Project.WebApi.Controllers.Users;
@@ -13,6 +15,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddWebApiServices(builder.Configuration);
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = false,
+        ValidateIssuerSigningKey = false
+    };
+});
 
 // CLEAN ARCH
 builder.Services.AddInfraServices(builder.Configuration); // Dapper, repos, logging
@@ -45,6 +64,7 @@ if (!app.Environment.IsDevelopment())
 // Middleware de Prometheus para m�tricas HTTP (latencia, status codes, etc.)
 app.UseHttpMetrics();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // ---- ENDPOINTS EXTRA ----
