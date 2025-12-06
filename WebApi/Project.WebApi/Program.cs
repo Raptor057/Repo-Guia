@@ -8,6 +8,7 @@ using Project.Infrastructure;
 using Project.WebApi.Controllers.Users;
 using Project.WebApi.Security;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddWebApiServices(builder.Configuration);
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 4,
+                QueueLimit = 50,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? string.Empty;
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
@@ -78,6 +94,7 @@ app.UseHttpMetrics();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 // ---- ENDPOINTS EXTRA ----
 
