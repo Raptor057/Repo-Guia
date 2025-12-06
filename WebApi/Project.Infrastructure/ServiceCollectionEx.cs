@@ -10,10 +10,11 @@ namespace Project.Infrastructure
 {
     public static class ServiceCollectionEx
     {
-        public static IServiceCollection AddInfraServices(this IServiceCollection services,IConfiguration configuration)
+        public static IServiceCollection AddInfraServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Logging centralizado (Seq, etc.)
-            services.AddLoggingServices(configuration);
+            var configRoot = (IConfigurationRoot)configuration;
+            services.AddLoggingServices(configRoot);
 
             // Fábrica genérica por tipo: usa connection string con el nombre del tipo (Project, etc.)
             services.AddSingleton(typeof(GenericConfigurationSqlDbConnectionFactory<>));

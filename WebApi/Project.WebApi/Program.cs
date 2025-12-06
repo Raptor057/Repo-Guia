@@ -136,3 +136,6 @@ app.MapMetrics("/api/metrics");
 app.MapControllers();
 
 app.Run();
+
+// Necesario para WebApplicationFactory en pruebas de integración
+public partial class Program { }
