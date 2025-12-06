@@ -2,32 +2,15 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: mssqlserver-developer-edition
+    ports:
+      - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Developer
-      - SA_PASSWORD=${SA_PASSWORD:-Cbmwjmkq27$$*}
-    ports:
-      - "1433:1433"
+      - SA_PASSWORD=Cbmwjmkq27$*
     volumes:
       - sql-data:/var/opt/mssql
     restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "/bin/bash -c '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$SA_PASSWORD -Q \"SELECT 1\" || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$SA_PASSWORD -Q \"SELECT 1\"'"]
-      interval: 15s
-      timeout: 10s
-      retries: 15
-      start_period: 60s
-
-  db-init:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-    environment:
-      - SA_PASSWORD=${SA_PASSWORD:-Cbmwjmkq27$$*}
-    volumes:
-      - ../MSSQL:/scripts:ro
-    entrypoint: ["/bin/bash", "-c", "/opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD -i \"/scripts/1) CREATE DATABASE Project.sql\" || /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD -i \"/scripts/1) CREATE DATABASE Project.sql\"; echo 'DB seeded'"]
 
   seq:
     image: datalust/seq:latest
@@ -46,21 +29,17 @@ services:
     build:
       context: ..
       dockerfile: WebApi/Docker/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://+:8080
-      - ASPNETCORE_ENVIRONMENT=Production
-      - Jwt__Issuer=${JWT_ISSUER:-Raptor.Api}
-      - Jwt__Audience=${JWT_AUDIENCE:-Raptor.Api}
-      - Jwt__Key=${JWT_KEY:-f2effe638c85e49af04a610a5210cde719057e58528bdcc3037839809c0b64172f8fe158718caf46508278772802dcff00bf5ea603b217a253cc5aa292ed4bbc}
-      - ConnectionStrings__ProjectDatabase=${DB_CONN:-Server=sqlserver,1433;Database=Project;User ID=sa;Password=${SA_PASSWORD:-Cbmwjmkq27$$*};TrustServerCertificate=True;MultipleActiveResultSets=TRUE;}
-      - CustomLogging__SeqUri=http://seq:5341
+    # environment:
+    #   - ASPNETCORE_URLS=http://+:8080
+    #   - ASPNETCORE_ENVIRONMENT=Development
+    #   - Jwt__Issuer=${JWT_ISSUER:-Raptor.Api}
+    #   - Jwt__Audience=${JWT_AUDIENCE:-Raptor.Api}
+    #   - Jwt__Key=${JWT_KEY:-f2effe638c85e49af04a610a5210cde719057e58528bdcc3037839809c0b64172f8fe158718caf46508278772802dcff00bf5ea603b217a253cc5aa292ed4bbc}
+    #   - ConnectionStrings__ProjectDatabase=${DB_CONN:-Server=sqlserver,1433;Database=Project;User ID=sa;Password=${SA_PASSWORD:-Cbmwjmkq27$*};TrustServerCertificate=True;MultipleActiveResultSets=TRUE;}
+    #   - CustomLogging__SeqUri=http://seq:5341
     expose:
-      - "8080"
+      - "8080:8080"
     depends_on:
-      sqlserver:
-        condition: service_healthy
-      db-init:
-        condition: service_completed_successfully
       seq:
         condition: service_started
     deploy:
